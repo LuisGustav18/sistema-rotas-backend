@@ -1,6 +1,7 @@
 package com.luis.sistema_rotas.auth.resource;
 
 import com.luis.sistema_rotas.auth.dto.AuthenticationDTO;
+import com.luis.sistema_rotas.auth.dto.MeDTO;
 import com.luis.sistema_rotas.security.TokenService;
 import com.luis.sistema_rotas.security.User;
 import jakarta.validation.Valid;
@@ -10,10 +11,8 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.Duration;
 
@@ -51,5 +50,17 @@ public class AuthenticationResource {
                 .ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .build();
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<MeDTO> me(Authentication authentication){
+        User user = (User) authentication.getPrincipal();
+
+        MeDTO me = new MeDTO(
+                user.getId(),
+                user.getPassword()
+        );
+
+        return ResponseEntity.ok(me);
     }
 }
