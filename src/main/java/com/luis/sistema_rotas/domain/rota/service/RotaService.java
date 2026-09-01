@@ -5,6 +5,7 @@ import com.luis.sistema_rotas.domain.projeto.service.ProjetoService;
 import com.luis.sistema_rotas.domain.rota.dto.RotaDTO;
 import com.luis.sistema_rotas.domain.rota.entity.Rota;
 import com.luis.sistema_rotas.domain.rota.repository.RotaRepository;
+import com.luis.sistema_rotas.domain.usuario.entity.Usuario;
 import com.luis.sistema_rotas.exceptions.DataIntegrityViolationException;
 import com.luis.sistema_rotas.exceptions.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,30 +39,45 @@ public class RotaService {
         return list;
     }
 
-    public Rota create(RotaDTO objDTO){
+    public Rota create(RotaDTO objDTO, UUID usuarioId){
 
         validationDuplicationSameLocation(objDTO.latitude(), objDTO.longitude());
 
         Rota obj = new Rota(objDTO);
         obj.setProjeto(findProjeto(objDTO.projeto()));
+
+        validationUserIntegrityCheck(obj.getProjeto().getUsuario(), usuarioId);
+
         return repository.save(obj);
     }
 
-    public Rota update(UUID id, RotaDTO objDTO){
+    public Rota update(UUID id, RotaDTO objDTO, UUID usuarioId){
         Rota obj = findById(id);
-        if (!obj.getLongitude().equals(objDTO.longitude()) || !obj.getLatitude().equals(objDTO.latitude())) {
+
+        validationUserIntegrityCheck(obj.getProjeto().getUsuario(), usuarioId);
+
+         if (!obj.getLongitude().equals(objDTO.longitude()) || !obj.getLatitude().equals(objDTO.latitude())) {
             validationDuplicationSameLocation(objDTO.latitude(), objDTO.longitude());
         }
+
         if (!obj.getProjeto().getId().equals(objDTO.projeto())){
             throw new DataIntegrityViolationException("Erro na atualização de rota");
         }
+
         obj = new Rota(objDTO);
         return repository.save(obj);
     }
 
-    public void delete(UUID id){
+    public void delete(UUID id, UUID usuarioId){
         Rota obj = findById(id);
+        validationUserIntegrityCheck(obj.getProjeto().getUsuario(), usuarioId);
         repository.delete(obj);
+    }
+
+    private void validationUserIntegrityCheck(Usuario usuario, UUID usuarioId){
+        if (!usuario.getId().equals(usuarioId)){
+            throw new DataIntegrityViolationException("Não contem permissão nesse projeto");
+        }
     }
 
     private void validationDuplicationSameLocation(Double latitude, Double longitude){
