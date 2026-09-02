@@ -58,7 +58,7 @@ public class AuthenticationResource {
 
         MeDTO me = new MeDTO(
                 user.getId(),
-                user.getPassword()
+                user.getUsername()
         );
 
         return ResponseEntity.ok(me);
