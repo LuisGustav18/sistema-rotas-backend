@@ -29,13 +29,7 @@ public class ProjetoService {
     }
 
     public List<Projeto> findProjetoByUsuario(UUID id){
-        List<Projeto> list = repository.findProjetoByUsuarioId(id);
-
-        if (list.isEmpty()){
-            throw new ObjectNotFoundException("Nenhum projeto desenvolvido");
-        }
-
-        return list;
+        return repository.findProjetoByUsuarioId(id);
     }
 
     public Projeto create(ProjetoDTO objDTO){

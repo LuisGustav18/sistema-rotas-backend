@@ -30,13 +30,7 @@ public class RotaService {
     }
 
     public List<Rota> findRotaByProjetoId(UUID id){
-        List<Rota> list = repository.findRotaByProjetoId(id);
-
-        if (list.isEmpty()){
-            throw new ObjectNotFoundException("Pontos não marcados");
-        }
-
-        return list;
+        return repository.findRotaByProjetoId(id);
     }
 
     public Rota create(RotaDTO objDTO, UUID usuarioId){
