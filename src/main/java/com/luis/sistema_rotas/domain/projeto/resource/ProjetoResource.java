@@ -45,8 +45,9 @@ public class ProjetoResource {
     }
 
     @PostMapping
-    public ResponseEntity<ProjetoDTO> create(@RequestBody ProjetoDTO objDTO){
-        Projeto obj = service.create(objDTO);
+    public ResponseEntity<ProjetoDTO> create(@RequestBody ProjetoDTO objDTO, Authentication authentication){
+        User user = (User) authentication.getPrincipal();
+        Projeto obj = service.create(objDTO, user.getId());
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(obj.getId())
@@ -54,15 +55,17 @@ public class ProjetoResource {
         return ResponseEntity.created(uri).build();
     }
 
-    @PutMapping(value = "/{id}")
-    public ResponseEntity<ProjetoDTO> update(@PathVariable UUID id, @RequestBody ProjetoDTO objDTO){
-        Projeto obj = service.update(id, objDTO);
+    @PutMapping()
+    public ResponseEntity<ProjetoDTO> update(Authentication authentication, @RequestBody ProjetoDTO objDTO){
+        User user = (User) authentication.getPrincipal();
+        Projeto obj = service.update(user.getId(), objDTO);
         return ResponseEntity.ok().body(new ProjetoDTO(obj));
     }
 
     @DeleteMapping(value = "/{id}")
-    public ResponseEntity<Void> delete(@PathVariable UUID id){
-        service.delete(id);
+    public ResponseEntity<Void> delete(@PathVariable UUID id, Authentication authentication){
+        User user = (User) authentication.getPrincipal();
+        service.delete(id, user.getId());
         return ResponseEntity.noContent().build();
     }
 }

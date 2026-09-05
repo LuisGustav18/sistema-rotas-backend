@@ -32,25 +32,32 @@ public class ProjetoService {
         return repository.findProjetoByUsuarioId(id);
     }
 
-    public Projeto create(ProjetoDTO objDTO){
+    public Projeto create(ProjetoDTO objDTO, UUID usuarioId){
         Projeto obj = new Projeto(objDTO);
-        obj.setUsuario(findUsuario(objDTO.usuario()));
+        obj.setUsuario(findUsuario(usuarioId));
         return repository.save(obj);
     }
 
     public Projeto update(UUID id, ProjetoDTO objDTO){
         Projeto obj = findById(id);
-        if (!obj.getUsuario().getId().equals(objDTO.usuario())){
-            throw new DataIntegrityViolationException("Erro de atualização de projeto");
-        }
+        validationUserAccess(obj.getUsuario().getId(), objDTO.usuario());
         obj.setTitulo(objDTO.titulo());
         obj.setData(objDTO.data());
         return repository.save(obj);
     }
 
-    public void delete(UUID id){
+    public void delete(UUID id, UUID usuarioId){
         Projeto obj = findById(id);
+
+        validationUserAccess(id, usuarioId);
+
         repository.delete(obj);
+    }
+
+    private void validationUserAccess(UUID id, UUID usuarioId){
+        if (!id.equals(usuarioId)){
+            throw new DataIntegrityViolationException("Sem autorização sobre projeto");
+        }
     }
 
     private Usuario findUsuario(UUID id){
